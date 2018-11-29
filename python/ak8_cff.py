@@ -19,7 +19,7 @@ def setupCustomizedAK8(process, runOnMC=False, path=None):
     JETCorrLevels = ['L2Relative', 'L3Absolute', 'L2L3Residual']
 
     # from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
-    from PhysicsTools.NanoHRT.jetToolbox_cff import jetToolbox
+    from PhysicsTools.NanoSUSY.jetToolbox_cff import jetToolbox
     jetToolbox(process, 'ak8', 'dummySeq', 'out', associateTask=False,
                PUMethod='Puppi', JETCorrPayload='AK8PFPuppi', JETCorrLevels=JETCorrLevels,
                Cut='pt > 170.0 && abs(rapidity()) < 2.4',
@@ -46,28 +46,28 @@ def setupCustomizedAK8(process, runOnMC=False, path=None):
 
 
     process.customAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
-        src=cms.InputTag("customAK8WithUserData"),
-        name=cms.string("CustomAK8Puppi"),
+        src=cms.InputTag("packedPatJetsAK8PFPuppiSoftDrop"),
+        name=cms.string("AK8Puppi"),
         cut=cms.string(""),
-        doc=cms.string("customized ak8 puppi jets for HRT"),
+        doc=cms.string("customized ak8 puppi jets for DeepAK8"),
         singleton=cms.bool(False),  # the number of entries is variable
         extension=cms.bool(False),  # this is the main table for the jets
         variables=cms.PSet(P4Vars,
-            jetId=Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')", int, doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
-            area=Var("jetArea()", float, doc="jet catchment area, for JECs", precision=10),
-            rawFactor=Var("1.-jecFactor('Uncorrected')", float, doc="1 - Factor to get back to raw pT", precision=6),
-            tau1=Var("userFloat('NjettinessAK8Puppi:tau1')", float, doc="Nsubjettiness (1 axis)", precision=10),
-            tau2=Var("userFloat('NjettinessAK8Puppi:tau2')", float, doc="Nsubjettiness (2 axis)", precision=10),
-            tau3=Var("userFloat('NjettinessAK8Puppi:tau3')", float, doc="Nsubjettiness (3 axis)", precision=10),
-            n2b1=Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
-            n3b1=Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
-            msoftdrop=Var("groomedMass()", float, doc="Corrected soft drop mass with PUPPI", precision=10),
-            btagCSVV2=Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')", float, doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)", precision=10),
-            btagHbb=Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')", float, doc="Higgs to BB tagger discriminator", precision=10),
-            subJetIdx1=Var("?nSubjetCollections()>0 && subjets().size()>0?subjets()[0].key():-1", int,
-                 doc="index of first subjet"),
-            subJetIdx2=Var("?nSubjetCollections()>0 && subjets().size()>1?subjets()[1].key():-1", int,
-                 doc="index of second subjet"),
+            # jetId=Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')", int, doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
+            # area=Var("jetArea()", float, doc="jet catchment area, for JECs", precision=10),
+            # rawFactor=Var("1.-jecFactor('Uncorrected')", float, doc="1 - Factor to get back to raw pT", precision=6),
+            # tau1=Var("userFloat('NjettinessAK8Puppi:tau1')", float, doc="Nsubjettiness (1 axis)", precision=10),
+            # tau2=Var("userFloat('NjettinessAK8Puppi:tau2')", float, doc="Nsubjettiness (2 axis)", precision=10),
+            # tau3=Var("userFloat('NjettinessAK8Puppi:tau3')", float, doc="Nsubjettiness (3 axis)", precision=10),
+            # n2b1=Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
+            # n3b1=Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
+            # msoftdrop=Var("groomedMass()", float, doc="Corrected soft drop mass with PUPPI", precision=10),
+            # btagCSVV2=Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')", float, doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)", precision=10),
+            # btagHbb=Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')", float, doc="Higgs to BB tagger discriminator", precision=10),
+            # subJetIdx1=Var("?nSubjetCollections()>0 && subjets().size()>0?subjets()[0].key():-1", int,
+                 # doc="index of first subjet"),
+            # subJetIdx2=Var("?nSubjetCollections()>0 && subjets().size()>1?subjets()[1].key():-1", int,
+                 # doc="index of second subjet"),
             # nBHadrons=Var("jetFlavourInfo().getbHadrons().size()", int, doc="number of b-hadrons"),
             # nCHadrons=Var("jetFlavourInfo().getcHadrons().size()", int, doc="number of c-hadrons"),
             # # BEST Tagger
@@ -125,12 +125,9 @@ def setupCustomizedAK8(process, runOnMC=False, path=None):
         )
         process.customGenSubJetAK8Table.variables.pt.precision = 10
 
-        process.customizedAK8Task.add(process.customGenJetAK8Table)
-        process.customizedAK8Task.add(process.customGenSubJetAK8Table)
+        # process.customizedAK8Task.add(process.customGenJetAK8Table)
+        # process.customizedAK8Task.add(process.customGenSubJetAK8Table)
 
-    # _customizedAK8Task_80X = process.customizedAK8Task.copy()
-    # # _customizedAK8Task_80X.replace(process.tightJetIdLepVetoCustomAK8, process.looseJetIdCustomAK8)
-    # run2_miniAOD_80XLegacy.toReplaceWith(process.customizedAK8Task, _customizedAK8Task_80X)
 
     if path is None:
         process.schedule.associate(process.customizedAK8Task)
