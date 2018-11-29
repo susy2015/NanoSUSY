@@ -46,8 +46,8 @@ def setupCustomizedAK8(process, runOnMC=False, path=None):
 
 
     process.customAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
-        src=cms.InputTag("packedPatJetsAK8PFPuppiSoftDrop"),
-        name=cms.string("AK8Puppi"),
+        src=cms.InputTag("selectedUpdatedPatJetsAK8WithPuppiDaughters"),
+        name=cms.string("DeepAK8"),
         cut=cms.string(""),
         doc=cms.string("customized ak8 puppi jets for DeepAK8"),
         singleton=cms.bool(False),  # the number of entries is variable

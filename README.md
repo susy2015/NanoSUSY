@@ -1,4 +1,12 @@
-# NanoHRT
+# NanoSUSY
+
+This is an attempt for a modified NanoAOD, suited for the analysis need from
+SUSY, mainly focus on the stop all-hadroinc searches.
+
+*The code follows contributions from various sources as below:*
+* NanoHRT from huilin: https://github.com/hqucms/NanoHRT
+* METSig from Daniel: https://github.com/danbarto/cmssw/blob/sumPtForMETSig/PhysicsTools/NanoAOD/plugins/METSignificanceInputProducer.cc
+
 
 ### Set up CMSSW
 
@@ -8,32 +16,33 @@ cd CMSSW_9_4_11_cand1/src
 cmsenv
 ```
 
-### Get customized NanoAOD producers for HeavyResTagging
+### Get customized NanoAOD producers
 
 ```bash
-git clone https://github.com/hqucms/NanoHRT.git PhysicsTools/NanoHRT
-git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_94X_v1
-```
-
-### Compile
-
-```bash
-scram b -j16
+git cms-merge-topic -u pastika:AddAxis1_946p1
+git clone git@github.com:susy2015/TopTagger.git -b nanoAODUpdate
+git clone git@github.com:susy2015/NanoSUSY.git PhysicsTools/NanoSUSY
+scram b -j 8
 ```
 
 ### Test
 
 ```bash
-cd PhysicsTools/NanoHRT/test
+mkdir -p PhysicsTools/NanoSUSY/test
+cd PhysicsTools/NanoSUSY/test
+
+$CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepResolved_DeepCSV_GR_Tight_v1.0.1
+
 ```
 
 MC:
 
 ```bash
-cmsDriver.py test_nanoHRT_mc -n 1000 --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --conditions 94X_mcRun2_asymptotic_v2 --step NANO --nThreads 4 --era Run2_2016,run2_miniAOD_80XLegacy --customise PhysicsTools/NanoHRT/nanoHRT_cff.nanoHRT_customizeMC --filein /store/mc/RunIISummer16MiniAODv2/ZprimeToTT_M-3000_W-30_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/D6D620EF-73BE-E611-8BFB-B499BAA67780.root --fileout file:nano_mc.root >& test_mc.log &
-
-less +F test_mc.log
+cmsDriver.py test94X -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv1 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customizeMC
+cmsRun test94X_NANO.py
 ```
+
+<details> <summary> To be updated: </summary>
 
 Data:
 
@@ -106,4 +115,4 @@ More options of this `crab.py` script can be found with:
 ```bash
 ./crab.py -h
 ```
-../../../TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepResolved_DeepCSV_GR_Tight_v1.0.1
+</details>
