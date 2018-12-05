@@ -10,36 +10,47 @@ SUSY, mainly focus on the stop all-hadroinc searches.
 
 ### Set up CMSSW
 
-```bash
-cmsrel CMSSW_9_4_11_cand1
-cd CMSSW_9_4_11_cand1/src
+```tcsh
+source /cvmfs/cms.cern.ch/cmsset_default.csh
+setenv SCRAM_ARCH slc6_amd64_gcc700
+cmsrel CMSSW_10_2_6
+cd CMSSW_10_2_6/src/
 cmsenv
 ```
 
 ### Get customized NanoAOD producers
 
-```bash
-git cms-merge-topic -u pastika:AddAxis1_946p1
-git clone git@github.com:susy2015/TopTagger.git -b nanoAODUpdate
+```tcsh
+git cms-merge-topic cms-nanoAOD:master-102X
+git cms-merge-topic -u pastika:AddAxis1_1026
+git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODTools
+git clone git@github.com:susy2015/TopTagger.git
 git clone git@github.com:susy2015/NanoSUSY.git PhysicsTools/NanoSUSY
-scram b -j 8
+scram build -j 8
 ```
 
-### Test
+### Testing
 
 ```bash
-mkdir -p PhysicsTools/NanoSUSY/test
-cd PhysicsTools/NanoSUSY/test
-
-$CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -t DeepResolved_DeepCSV_GR_Tight_v1.0.1
-
+cd PhysicsTools/NanoSUSY/crab
+$CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -n -t DeepResolved_DeepCSV_GR_noDisc_Release_v1.0.0 -d $CMSSW_BASE/src/TopTagger/TopTagger/data
 ```
 
-MC:
 
-```bash
-cmsDriver.py test94X -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv1 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customizeMC
-cmsRun test94X_NANO.py
+For 2016 MC, '/\*/RunIISummer16MiniAODv3\*/MINIAODSIM'
+``` cmsDriver.py prod2016MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions 94X_mcRun2_asymptotic_v3 -n 100 --era Run2_2016,run2_nanoAOD_94X2016 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger
+cmsRun prod2016MC.py
+```
+For 2017 MC, '/\*/RunIIFall17\*12Apr2018\*/MINIAODSIM'
+``` cmsDriver.py prod2017MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv2 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger 
+cmsRun prod2017MC.py
+```
+
+### Submit crab jobs
+```tcsh
+source /cvmfs/cms.cern.ch/crab3/crab.csh
+grid-proxy-init -debug -verify
+python crab.py  -p prod2016MC.py -i example_16MC -o /store/user/benwu/StopStudy/TestNanoSUSY -t test
 ```
 
 <details> <summary> To be updated: </summary>
