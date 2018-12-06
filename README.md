@@ -40,12 +40,12 @@ $CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -n -t DeepResolve
 For 2016 MC, '/\*/RunIISummer16MiniAODv3\*/MINIAODSIM'
 ``` 
 cmsDriver.py prod2016MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions 94X_mcRun2_asymptotic_v3 -n 100 --era Run2_2016,run2_nanoAOD_94X2016 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger
-cmsRun prod2016MC.py
+cmsRun prod2016MC_NANO.py
 ```
 For 2017 MC, '/\*/RunIIFall17\*12Apr2018\*/MINIAODSIM'
 ``` 
-cmsDriver.py prod2017MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv2 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger 
-cmsRun prod2017MC.py
+cmsDriver.py prod2017MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv1 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger 
+cmsRun prod2017MC_NANO.py
 ```
 
 ### Submit crab jobs
