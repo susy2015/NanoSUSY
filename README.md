@@ -33,15 +33,34 @@ scram build -j 8
 
 ```bash
 cd PhysicsTools/NanoSUSY/crab
+mkdir -p ${CMSSW_BASE}/src/TopTagger/TopTagger/data
 $CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -n -t DeepResolved_DeepCSV_GR_noDisc_Release_v1.0.0 -d $CMSSW_BASE/src/TopTagger/TopTagger/data
 ```
 
+##### 2016 Sample
 
-For 2016 MC, '/\*/RunIISummer16MiniAODv3\*/MINIAODSIM'
+
+For 2016 80X MC, '/\*/RunIISummer16MiniAODv2\*/MINIAODSIM'
+``` 
+cmsDriver.py prod2016MCv2 -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/mc/RunIISummer16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/621E65CB-98BE-E611-BC32-00259029E7FC.root --no_exec --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 -n 100 --era Run2_2016,run2_miniAOD_80XLegacy --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger
+cmsRun prod2016MCv2_NANO.py
+```
+
+For 2016 80X Fastsim, '/\*/RunIISpring16MiniAODv\*/MINIAODSIM'
+``` 
+cmsDriver.py prod2016Fastv2 -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/mc/RunIISpring16MiniAODv2/SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/1C8E082A-9140-E611-8C60-008CFA1974D8.root --no_exec --conditions 80X_mcRun2_asymptotic_2016_miniAODv2_v0 -n 100 --era Run2_2016,run2_miniAOD_80XLegacy --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger --fast
+cmsRun prod2016Fastv2_NANO.py
+```
+
+For 2016 94X MC, '/\*/RunIISummer16MiniAODv3\*/MINIAODSIM'
 ``` 
 cmsDriver.py prod2016MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/mc/RunIISummer16MiniAODv3/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2/120000/1E4DDC30-2AEB-E811-BBB1-0CC47A5FA3BD.root --no_exec --conditions 94X_mcRun2_asymptotic_v3 -n 100 --era Run2_2016,run2_nanoAOD_94X2016 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger
 cmsRun prod2016MC_NANO.py
 ```
+
+
+##### 2017 Sample
+
 For 2017 MC, '/\*/RunIIFall17\*12Apr2018\*/MINIAODSIM'
 ``` 
 cmsDriver.py prod2017MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv1 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTagger 
