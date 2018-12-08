@@ -6,6 +6,9 @@ import re
 import logging
 
 from CRABAPI.RawCommand import crabCommand
+from CRABClient.ClientExceptions import ClientException
+from httplib import HTTPException
+from multiprocessing import Process
 
 
 def natural_sort(l):
@@ -56,9 +59,8 @@ def createConfig(args, dataset, outname):
     config = config()
 
     procname, vername, ext, isMC = parseDatasetName(dataset)
-    print(procname, vername, ext, isMC)
 
-    config.General.requestName = outname + ext
+    config.General.requestName = outname
     config.General.workArea = args.work_area
     config.General.transferOutputs = True
     config.General.transferLogs = False
@@ -188,6 +190,21 @@ def status(args):
         logger.warning('Submit failed:\n%s' % '\n'.join(submit_failed))
 
 
+def SubmitJob(args, dataset, outname):
+    cfg = createConfig(args, dataset, outname)
+    if args.dryrun:
+        print('-' * 50)
+        print(cfg)
+        return False
+    logger.info('Submitting dataset %s' % dataset)
+    try:
+        crabCommand('submit', config=cfg)
+    except HTTPException as hte:
+        print ("Failed submitting task: %s, %s" % (outname, hte.headers))
+    except ClientException as cle:
+        print ("Failed submitting task: %s" % outname)
+    return True
+
 def main():
 
     parser = argparse.ArgumentParser('Submit crab jobs')
@@ -289,13 +306,9 @@ def main():
                 continue
             dataset = [s for s in l.split() if '/MINIAOD' in s][0]
             outname = l.split()[0]
-            cfg = createConfig(args, dataset, outname)
-            if args.dryrun:
-                print('-' * 50)
-                print(cfg)
-                continue
-            logger.info('Submitting dataset %s' % dataset)
-            crabCommand('submit', config=cfg)
+            p = Process(target=SubmitJob , args=(args, dataset, outname))
+            p.start()
+            p.join()
 
 
 if __name__ == '__main__':
