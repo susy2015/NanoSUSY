@@ -1,14 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoSUSY.ak8_cff import setupCustomizedAK8
+from PhysicsTools.NanoSUSY.softb_cff import setupCustomizedSB
 
 
-def nanoSUSY_customizeCommon(process, runOnMC):
-    setupCustomizedAK8(process, runOnMC=runOnMC)
+def nanoSUSY_customizeCommon(process):
+    setupCustomizedSB(process)
+    process.particleLevelSequence.remove(process.genParticles2HepMCHiggsVtx);
+    process.particleLevelSequence.remove(process.rivetProducerHTXS);
+    process.particleLevelTables.remove(process.HTXSCategoryTable)
+    # setupCustomizedAK8(process, runOnMC=runOnMC)
     # setupCA15(process, runOnMC=runOnMC)
     # setupHOTVR(process, runOnMC=runOnMC)
     # update MET w/ JEC
-    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    runMetCorAndUncFromMiniAOD(process, isData=not runOnMC)
+    # from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+    # runMetCorAndUncFromMiniAOD(process, isData=not runOnMC)
     return process
 
 
