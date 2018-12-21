@@ -33,7 +33,7 @@ scram build -j 8
 ```bash
 cd PhysicsTools/NanoSUSY/crab
 mkdir -p ${CMSSW_BASE}/src/TopTagger/TopTagger/data
-getTaggerCfg.sh -o -n -t DeepResolved_DeepCSV_GR_noDisc_Release_v1.0.0 -d $CMSSW_BASE/src/TopTagger/TopTagger/data
+$CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -n -t DeepResolved_DeepCSV_GR_noDisc_Release_v1.0.0 -d $CMSSW_BASE/src/TopTagger/TopTagger/data
 ```
 
 ##### 2016 Sample
