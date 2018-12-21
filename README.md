@@ -22,7 +22,6 @@ cmsenv
 
 ```tcsh
 git cms-merge-topic -u pastika:AddAxis1_1026
-git cms-merge-topic -u pastika:AllDeepFlavourDisc_10_2_9
 git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODTools
 git clone git@github.com:susy2015/TopTagger.git
 git clone git@github.com:susy2015/NanoSUSY.git PhysicsTools/NanoSUSY
