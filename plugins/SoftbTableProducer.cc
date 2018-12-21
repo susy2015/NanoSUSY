@@ -130,7 +130,7 @@ SoftbTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<edm::View<reco::VertexCompositePtrCandidate> > svsIn;
     iEvent.getByToken(svs_, svsIn);
     auto selCandSv = std::make_unique<PtrVector<reco::Candidate>>();
-    std::vector<float> dlen,dlenSig,pAngle, dxy,dxySig ;
+    std::vector<float> dlen,dlenSig,DdotP, dxy,dxySig ;
     std::vector<int> nTrack, jetIdx;
     VertexDistance3D vdist;
     VertexDistanceXY vdistXY;
@@ -148,14 +148,14 @@ SoftbTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                dlen.push_back(dl.value());
                dlenSig.push_back(dl.significance());
 
-               double dx = (PV0.x() - sv.vx()), dy = (PV0.y() - sv.vy()), dz = (PV0.z() - sv.vz());
-               double pdotv = (dx * sv.px() + dy*sv.py() + dz*sv.pz())/sv.p();
-               pAngle.push_back(std::acos(pdotv));
+               // From the previous code
+               reco::Candidate::Vector p = c->momentum();
+               reco::Candidate::Vector d(c->vx() - PV0.x(), c->vy() - PV0.y(), c->vz() - PV0.z());
+               DdotP.push_back(p.Unit().Dot(d.Unit()));
+
                Measurement1D d2d = vdistXY.distance(PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
                dxy.push_back(d2d.value());
                dxySig.push_back(d2d.significance());
-               nTrack.push_back(c->numberOfDaughters());
-
 
                int matchidx = -1;
                for (unsigned int ij = 0; ij<nJet; ij++){
@@ -177,10 +177,9 @@ SoftbTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // For SV we fill from here only stuff that cannot be created with the SimpleFlatTableProducer 
     svsTable->addColumn<float>("dlen",dlen,"decay length in cm",nanoaod::FlatTable::FloatColumn,10);
     svsTable->addColumn<float>("dlenSig",dlenSig,"decay length significance",nanoaod::FlatTable::FloatColumn, 10);
-    svsTable->addColumn<float>("pAngle",pAngle,"pointing angle, i.e. acos(p_SV * (SV - PV)) ",nanoaod::FlatTable::FloatColumn,10);
+    svsTable->addColumn<float>("DdotP",DdotP,"pointing angle",nanoaod::FlatTable::FloatColumn,10);
     svsTable->addColumn<float>("dxy",dxy,"decay length in cm",nanoaod::FlatTable::FloatColumn,10);
     svsTable->addColumn<float>("dxySig",dxySig,"decay length significance",nanoaod::FlatTable::FloatColumn, 10);
-    svsTable->addColumn<int>("nTracks",nTrack,"number of trakcs",nanoaod::FlatTable::IntColumn);
     svsTable->addColumn<int>("JetIdx",jetIdx,"index of the associated jet (-1 if none)",nanoaod::FlatTable::IntColumn);
 
     iEvent.put(std::move(svsTable),"SB");

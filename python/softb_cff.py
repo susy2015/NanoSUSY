@@ -13,7 +13,7 @@ def setupCustomizedSB(process, runOnMC=False, path=None):
         goodPvCut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
         svSrc = cms.InputTag("slimmedSecondaryVertices"),
         Jetsrc = cms.InputTag("updatedJets"),
-        svCut = cms.string("pt<20"),
+        svCut = cms.string("pt<20 && numberOfDaughters >=3"),
         dlenMin = cms.double(0),
         dlenSigMin = cms.double(3),
         svName = cms.string("SB"),
@@ -26,8 +26,10 @@ def setupCustomizedSB(process, runOnMC=False, path=None):
         name = cms.string("SB"),
         singleton = cms.bool(False), # the number of entries is variable
         extension = cms.bool(True),
-        variables = cms.PSet(
-            P4Vars,
+        variables = cms.PSet( P4Vars,
+            ntracks= Var("numberOfDaughters()", int, doc = "number of tracks"),
+            ndof   = Var("vertexNdof()", float, doc = "number of degrees of freedom",precision=8),
+            chi2   = Var("vertexNormalizedChi2()", float, doc = "reduced chi2, i.e. chi/ndof",precision=8),
         ),
     )
     process.softbCandidateTable.variables.pt.precision=10
