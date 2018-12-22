@@ -1,25 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
-def setupTauMVAVariables(process):
+def setupTauMVAVariables(process, runOnMC=False, path=None):
 
-	process.TauMVAProducer = cms.EDProducer(
-		"TauMVAProducer",	
+	process.TauMVA = cms.EDProducer("TauMVAProducer",	
 		pfCandSrc 		= cms.InputTag("packedPFCandidates"),
-		jetsSrc 		= cms.InputTag("slimmedJets"),
+		jetsSrc 		= cms.InputTag("linkedObjects","jets"),
 		minCandPt       	= cms.double(10.0),
 		maxCandEta      	= cms.double(2.6),
+		tauName			= cms.string("pfcands"),
 	)
 
 	process.TauMVATable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-		src = cms.InputTag("packedPFCandidates"),
+		src = cms.InputTag("TauMVA"),
 		cut = cms.string(""),
 		name = cms.string("pfcands"),
-		singleton = cms.bool(True),
+		singleton = cms.bool(False),
 		extention = cms.bool(True),
-		variables = cms.PSet(
-			P4Vars,
-		)
+		variables = cms.PSet( P4Vars,
+		),
 	)
 
 	process.TauMVATable.variables.pt.precision=10
@@ -27,8 +26,11 @@ def setupTauMVAVariables(process):
 	process.TauMVATable.variables.phi.precision=10
 	process.TauMVATable.variables.mass.precision=10
 
-        process.TauMVATask = cms.Task(process.TauMVAProducer, process.TauMVATable)
+        process.TauMVATask = cms.Task(process.TauMVA, process.TauMVATable)
 
-        process.schedule.associate(process.TauMVATask)
+	if path is None:
+		process.schedule.associate(process.TauMVATask)
+	else:
+		getattr(process, path).associate(process.TauMVATask)
 
-        return process
+	return process
