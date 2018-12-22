@@ -35,6 +35,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -73,7 +76,7 @@ TauMVAProducer::TauMVAProducer(const edm::ParameterSet& iConfig)
 {
     //now do what ever other initialization is needed
     produces<nanoaod::FlatTable>("pfcands");
-    //produces<edm::PtrVector<pat::PackedCandidate> >();
+    produces<edm::PtrVector<reco::Candidate> >();
     edm::InputTag jetSrc_    = iConfig.getParameter<edm::InputTag>("jetsSrc");
     edm::InputTag pfCandSrc_ = iConfig.getParameter<edm::InputTag>("pfCandSrc");
 
@@ -84,12 +87,10 @@ TauMVAProducer::TauMVAProducer(const edm::ParameterSet& iConfig)
     candetaMax_ = iConfig.getParameter<double>("maxCandEta");
 }
 
-
 TauMVAProducer::~TauMVAProducer()
 {
  
 }
-
 
 //
 // member functions
@@ -254,7 +255,7 @@ void TauMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<float> pt, eta, phi, mass, dz, fromPV, chiso0p1, chiso0p2, chiso0p3, chiso0p4, totiso0p1, totiso0p2, totiso0p3, totiso0p4, trackiso, nearphopt, nearphoeta, nearphophi, nearestTrkDR, contJetDR, contJetCSV;
     std::vector<int> contJetIndex;
 
-    //auto selCandPf = std::make_unique<PtrVector<pat::PackedCandidate>>();
+    auto selCandPf = std::make_unique<PtrVector<reco::Candidate>>();
 
     std::cout << "Starting to process the PFCandidate Variables" << std::endl;
 
@@ -263,8 +264,6 @@ void TauMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (pfc->pt() < candptMin_ || fabs(pfc->eta()) > candetaMax_) continue;
 
 	if(!isA(p_piplus, pfc->pdgId())) continue; // only save charged hadrons unless otherwise specified
-
-	//selCandPf->push_back(pfcands_->ptrAt(ic));
 
 	float chiso0p1_ = computePFIsolation(pfc, 0.0, 0.1, 0);
 	float chiso0p2_ = computePFIsolation(pfc, 0.0, 0.2, 0);
@@ -314,33 +313,36 @@ void TauMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	contJetDR.push_back(contjetdr_);
 	contJetCSV.push_back(contjetcsv_);
+	
+	edm::Ptr<reco::Candidate> c = pfcands_->ptrAt(ic);
+	selCandPf->push_back(c);
     }
 
-    auto out = std::make_unique<nanoaod::FlatTable>(pt.size(), "pfcand", false); 
+    auto out = std::make_unique<nanoaod::FlatTable>(selCandPf->size(), "pfcand", false); 
     //out->setDoc("save pfcand and tau mva variables");
     
-    //out->addColumn<float>("pt", 			pt	  , "pfcand info pT" 		  , nanoaod::FlatTable::FloatColumn);
-    //out->addColumn<float>("eta", 			eta	  , "pfcand info Eta"		  , nanoaod::FlatTable::FloatColumn);
-    //out->addColumn<float>("phi", 			phi	  , "pfcand info Phi"		  , nanoaod::FlatTable::FloatColumn);
-    //out->addColumn<float>("mass", 			mass	  , "pfcand info Mass"		  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("dz", 			dz	  , "pfcand info dz"			  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("fromPV", 		fromPV	  ,"pfcand info from Primary Vertex"  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("chiso0p1", 		chiso0p1, "charged hadron isolation with R = 0.1" , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("chiso0p2", 		chiso0p2, "charged hadron isolation with R = 0.2" , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("chiso0p3", 		chiso0p3, "charged hadron isolation with R = 0.3" , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("chiso0p4", 		chiso0p4, "charged hadron isolation with R = 0.4" , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("totiso0p1", 		totiso0p1, "total hadron isolation with R = 0.1"  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("totiso0p2", 		totiso0p2, "total hadron isolation with R = 0.2"  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("totiso0p3", 		totiso0p3, "total hadron isolation with R = 0.3"  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("totiso0p4", 		totiso0p4, "total hadron isolation with R = 0.4"  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("trackiso", 		trackiso,  "individual track isolation"		  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("nearphopt", 		nearphopt, "pT of nearest photon to track" , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("nearphoeta", 		nearphoeta, "Eta of nearest photon to track", nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("nearphophi", 		nearphophi, "Phi of nearest photon to track", nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("nearestTrkDR", 		nearestTrkDR, "Nearest track in deltaR"           , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<int>(  "contJetIndex", 		contJetIndex,     "Index of jet containing track"     , nanoaod::FlatTable::IntColumn);
-    out->addColumn<float>("contJetDR", 		contJetDR,    "Jet deltaR"			  , nanoaod::FlatTable::FloatColumn);
-    out->addColumn<float>("contJetCSV", 		contJetCSV,   "Jet CSV"				  , nanoaod::FlatTable::FloatColumn);
+    //out->addColumn<float>("pt", 			pt	  , "pfcand info pT" 		  , nanoaod::FlatTable::FloatColumn,10);
+    //out->addColumn<float>("eta", 			eta	  , "pfcand info Eta"		  , nanoaod::FlatTable::FloatColumn,10);
+    //out->addColumn<float>("phi", 			phi	  , "pfcand info Phi"		  , nanoaod::FlatTable::FloatColumn,10);
+    //out->addColumn<float>("mass", 			mass	  , "pfcand info Mass"		  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("dz", 		dz	  , "pfcand info dz"			  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("fromPV", 		fromPV	  ,"pfcand info from Primary Vertex"  	  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("chiso0p1", 		chiso0p1, "charged hadron isolation with R = 0.1" , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("chiso0p2", 		chiso0p2, "charged hadron isolation with R = 0.2" , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("chiso0p3", 		chiso0p3, "charged hadron isolation with R = 0.3" , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("chiso0p4", 		chiso0p4, "charged hadron isolation with R = 0.4" , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("totiso0p1", 		totiso0p1, "total hadron isolation with R = 0.1"  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("totiso0p2", 		totiso0p2, "total hadron isolation with R = 0.2"  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("totiso0p3", 		totiso0p3, "total hadron isolation with R = 0.3"  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("totiso0p4", 		totiso0p4, "total hadron isolation with R = 0.4"  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("trackiso", 		trackiso,  "individual track isolation"		  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("nearphopt", 		nearphopt, "pT of nearest photon to track" 	  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("nearphoeta", 	nearphoeta, "Eta of nearest photon to track"      , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("nearphophi", 	nearphophi, "Phi of nearest photon to track"      , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("nearestTrkDR", 	nearestTrkDR, "Nearest track in deltaR"           , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<int>(  "contJetIndex", 	contJetIndex,     "Index of jet containing track" , nanoaod::FlatTable::IntColumn);
+    out->addColumn<float>("contJetDR", 		contJetDR,    "Jet deltaR"			  , nanoaod::FlatTable::FloatColumn,10);
+    out->addColumn<float>("contJetCSV", 	contJetCSV,   "Jet CSV"				  , nanoaod::FlatTable::FloatColumn,10);
   
     std::cout << "Storing the PFCandidate Variables" << std::endl;
     iEvent.put(std::move(out));
