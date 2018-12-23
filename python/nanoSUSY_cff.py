@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoSUSY.ak8_cff import setupCustomizedAK8
 from PhysicsTools.NanoSUSY.softb_cff import setupCustomizedSB
-
+from PhysicsTools.NanoSUSY.TauMVAProducer_cff import setupTauMVAVariables
 
 def nanoSUSY_customizeCommon(process):
     setupCustomizedSB(process)
+    setupTauMVAVariables(process)
     process.particleLevelSequence.remove(process.genParticles2HepMCHiggsVtx);
     process.particleLevelSequence.remove(process.rivetProducerHTXS);
     process.particleLevelTables.remove(process.HTXSCategoryTable)
