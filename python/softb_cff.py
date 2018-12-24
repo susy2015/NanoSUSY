@@ -9,15 +9,15 @@ from  PhysicsTools.NanoAOD.common_cff import *
 def setupCustomizedSB(process, runOnMC=False, path=None):
     ##################### Tables for final output and docs ##########################
     process.softbTable = cms.EDProducer("SoftbTableProducer",
-        pvSrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
-        goodPvCut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
-        svSrc = cms.InputTag("slimmedSecondaryVertices"),
-        Jetsrc = cms.InputTag("updatedJets"),
-        svCut = cms.string("pt<20 && numberOfDaughters >=3"),
-        dlenMin = cms.double(0),
+        pvSrc      = cms.InputTag("offlineSlimmedPrimaryVertices"),
+        goodPvCut  = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+        svSrc      = cms.InputTag("slimmedSecondaryVertices"),
+        Jetsrc     = cms.InputTag("linkedObjects","jets"),
+        svCut      = cms.string("pt<20 && numberOfDaughters >=3"),
+        dlenMin    = cms.double(0),
         dlenSigMin = cms.double(3),
-        svName = cms.string("SB"),
-        svDoc  = cms.string("secondary vertices from IVF algorithm"),
+        svName     = cms.string("SB"),
+        svDoc      = cms.string("secondary vertices from IVF algorithm"),
     )
 
     process.softbCandidateTable =  cms.EDProducer("SimpleCandidateFlatTableProducer",

@@ -9,6 +9,7 @@ def nanoSUSY_customizeCommon(process):
     process.particleLevelSequence.remove(process.genParticles2HepMCHiggsVtx);
     process.particleLevelSequence.remove(process.rivetProducerHTXS);
     process.particleLevelTables.remove(process.HTXSCategoryTable)
+    process.MessageLogger.cerr.FwkReport.reportEvery = 1000
     # setupCustomizedAK8(process, runOnMC=runOnMC)
     # setupCA15(process, runOnMC=runOnMC)
     # setupHOTVR(process, runOnMC=runOnMC)

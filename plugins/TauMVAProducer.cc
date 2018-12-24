@@ -82,7 +82,7 @@ TauMVAProducer::TauMVAProducer(const edm::ParameterSet& params):
     tauName_( params.getParameter<std::string>("tauName") )
 
 {
-    produces<nanoaod::FlatTable>("pfcands");
+    produces<nanoaod::FlatTable>(tauName_);
     produces<edm::PtrVector<reco::Candidate> >();
 }
 
@@ -223,7 +223,8 @@ void TauMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     int p_piplus = 211;
 
-    std::vector<float> dz, fromPV, chiso0p1, chiso0p2, chiso0p3, chiso0p4, totiso0p1, totiso0p2, totiso0p3, totiso0p4, trackiso, nearphopt, nearphoeta, nearphophi, nearestTrkDR;
+    std::vector<float> chiso0p1, chiso0p2, chiso0p3, chiso0p4, totiso0p1, totiso0p2, totiso0p3, totiso0p4, trackiso, nearphopt, nearphoeta, nearphophi, nearestTrkDR;//, contJetDR, contJetCSV;
+
     std::vector<int> contJetIndex;
 
     auto selCandPf = std::make_unique<PtrVector<reco::Candidate>>();
@@ -259,8 +260,7 @@ void TauMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
         }
 
-	dz.push_back(pfc->dz());
-	fromPV.push_back(pfc->fromPV());
+
 	chiso0p1.push_back(chiso0p1_);
 	chiso0p2.push_back(chiso0p2_);
 	chiso0p3.push_back(chiso0p3_);
@@ -281,8 +281,7 @@ void TauMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto out = std::make_unique<nanoaod::FlatTable>(selCandPf->size(), tauName_, false); 
     out->setDoc("save pfcand and tau mva variables");
     
-    out->addColumn<float>("dz", 		dz	  , "pfcand info dz"			  , nanoaod::FlatTable::FloatColumn,10);
-    out->addColumn<float>("fromPV", 		fromPV	  ,"pfcand info from Primary Vertex"  	  , nanoaod::FlatTable::FloatColumn,10);
+
     out->addColumn<float>("chiso0p1", 		chiso0p1, "charged hadron isolation with R = 0.1" , nanoaod::FlatTable::FloatColumn,10);
     out->addColumn<float>("chiso0p2", 		chiso0p2, "charged hadron isolation with R = 0.2" , nanoaod::FlatTable::FloatColumn,10);
     out->addColumn<float>("chiso0p3", 		chiso0p3, "charged hadron isolation with R = 0.3" , nanoaod::FlatTable::FloatColumn,10);
@@ -298,7 +297,7 @@ void TauMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     out->addColumn<float>("nearestTrkDR", 	nearestTrkDR, "Nearest track in deltaR"           , nanoaod::FlatTable::FloatColumn,10);
     out->addColumn<int>(  "contJetIndex", 	contJetIndex,     "Index of jet containing track" , nanoaod::FlatTable::IntColumn);
   
-    iEvent.put(std::move(out),"pfcands");
+    iEvent.put(std::move(out),tauName_);
     iEvent.put(std::move(selCandPf));
 }
 
