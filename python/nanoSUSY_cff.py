@@ -10,12 +10,11 @@ def nanoSUSY_customizeCommon(process):
     process.particleLevelSequence.remove(process.rivetProducerHTXS);
     process.particleLevelTables.remove(process.HTXSCategoryTable)
     process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-    # setupCustomizedAK8(process, runOnMC=runOnMC)
-    # setupCA15(process, runOnMC=runOnMC)
-    # setupHOTVR(process, runOnMC=runOnMC)
-    # update MET w/ JEC
-    # from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    # runMetCorAndUncFromMiniAOD(process, isData=not runOnMC)
+    ## Needed to avoid segfault erros in the output moule when producing flat ntuple
+    ## From https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/3287/1/1/1/1/1.html
+    process.add_(cms.Service("InitRootHandlers", EnableIMT = cms.untracked.bool(False)))
+    ## In case we want crab to publish the output file
+    process.NANOAODoutput.fakeNameForCrab=cms.untracked.bool(True)
     return process
 
 
