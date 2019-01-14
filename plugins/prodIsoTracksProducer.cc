@@ -83,26 +83,21 @@ private:
     virtual void endStream() override;
 
     // ----------member data ---------------------------
-    edm::EDGetTokenT< std::vector<reco::Vertex> >VtxTok_;
-    edm::EDGetTokenT<edm::View<reco::MET> >MetTok_;
-    edm::EDGetTokenT<pat::PackedCandidateCollection> Loose_IsoTrksHandle_Tok_;
-    edm::EDGetTokenT<edm::View<pat::PackedCandidate> > Loose_IsoTrksHandlePtr_Tok_;
-    edm::EDGetTokenT<pat::PackedCandidateCollection> ForVetoIsoTrks_Tok_;
-    edm::EDGetTokenT<std::vector<double> >  Loose_Isotrk_IsoVecHandle_Tok_;
-    edm::EDGetTokenT<std::vector<double> >Loose_Isotrk_DzpvVecHandle_Tok_;
+    edm::EDGetTokenT<std::vector<reco::Vertex> >       VtxTok_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>   Loose_IsoTrksHandle_Tok_;
+    edm::EDGetTokenT<edm::View<pat::PackedCandidate> > pfCandPtrToken_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>   ForVetoIsoTrks_Tok_;
     std::vector<int> exclPdgIdVec_;
     double dR_, dzcut_;
     double minPt_, isoCut_;
-    int loose_nIsoTrks, nIsoTrksForVeto;
     bool debug_;
     const std::string isoTrackName_;
 };
 
 prodIsoTracksProducer::prodIsoTracksProducer(const edm::ParameterSet& params):
     VtxTok_                             (consumes<std::vector<reco::Vertex>>     (params.getParameter<edm::InputTag>("vtxSrc"))),
-    MetTok_                             (consumes<edm::View<reco::MET>>          (params.getParameter<edm::InputTag>("metSrc"))),
     Loose_IsoTrksHandle_Tok_            (consumes<pat::PackedCandidateCollection>(params.getParameter<edm::InputTag>("loose_isoTrkSrc"))),
-    Loose_IsoTrksHandlePtr_Tok_		(consumes<edm::View<pat::PackedCandidate>>( params.getParameter<edm::InputTag>("loose_isoTrkSrc") )),
+    pfCandPtrToken_			(consumes<edm::View<pat::PackedCandidate>>(params.getParameter<edm::InputTag>("loose_isoTrkSrc"))),
     ForVetoIsoTrks_Tok_                 (consumes<pat::PackedCandidateCollection>(params.getParameter<edm::InputTag>("forVetoIsoTrkSrc"))),
     exclPdgIdVec_                       (params.getParameter<std::vector<int>>   ("exclPdgIdVec")),
     dR_                                 (params.getParameter<double>             ("dR_ConeSize")),
@@ -114,7 +109,7 @@ prodIsoTracksProducer::prodIsoTracksProducer(const edm::ParameterSet& params):
 
 {
     produces<nanoaod::FlatTable>(isoTrackName_);
-    produces<edm::PtrVector<reco::Candidate> >();
+    produces<edm::PtrVector<reco::Candidate>>();
 }
 
 prodIsoTracksProducer::~prodIsoTracksProducer()
@@ -134,28 +129,18 @@ void prodIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     edm::Handle< std::vector<reco::Vertex> > vertices;
     iEvent.getByToken(VtxTok_, vertices);
-    edm::Handle<edm::View<reco::MET> > met;
-    iEvent.getByToken(MetTok_, met);
-    edm::Handle<edm::View<pat::PackedCandidate> > loose_isoTrksHandlePtr_;
-    iEvent.getByToken(Loose_IsoTrksHandlePtr_Tok_, loose_isoTrksHandlePtr_);
+    edm::Handle<edm::View<pat::PackedCandidate> > pfcandsPtr_;
+    iEvent.getByToken(pfCandPtrToken_, pfcandsPtr_);
     edm::Handle<pat::PackedCandidateCollection> loose_isoTrksHandle_;
     iEvent.getByToken(Loose_IsoTrksHandle_Tok_, loose_isoTrksHandle_);
     edm::Handle<pat::PackedCandidateCollection> forVetoIsoTrks_;
     iEvent.getByToken(ForVetoIsoTrks_Tok_, forVetoIsoTrks_);
 
-    std::vector<float>  loose_isoTrks_pt;
-    std::vector<float>  loose_isoTrks_eta;
-    std::vector<float>  loose_isoTrks_phi;
-    std::vector<float>  loose_isoTrks_mass;
     std::vector<double>  loose_isoTrks_charge;
     std::vector<double>  loose_isoTrks_dz;
     std::vector<int>  loose_isoTrks_pdgId;
-    std::vector<int>  loose_isoTrks_idx;
-    std::vector<double>  loose_isoTrks_iso;
-    std::vector<double>  loose_isoTrks_mtw;
-    std::vector<double>  loose_isoTrks_pfActivity;
-    std::vector<int>  forVetoIsoTrks_idx;
-
+    std::vector<float>  loose_isoTrks_iso;
+    int loose_nIsoTrks = 0, nIsoTrksForVeto = 0;
     auto selCandPf = std::make_unique<PtrVector<reco::Candidate>>();
 
     if( loose_isoTrksHandle_.isValid() ) loose_nIsoTrks = loose_isoTrksHandle_->size(); else loose_nIsoTrks =0;
@@ -172,7 +157,7 @@ void prodIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
          if( isoTrk.pt() < minPt_ ) continue;
     
          if(isoTrk.charge() != 0){
-           double trkiso = 0.0;
+           float trkiso = 0.0;
            for(int iP=0; iP<loose_nIsoTrks; iP++){
               const pat::PackedCandidate isoTrk_other = (*loose_isoTrksHandle_)[iP];
     
@@ -193,26 +178,16 @@ void prodIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
               trkiso += isoTrk_other.pt();
            }
     
-           if(fabs(isoTrk.dxy()) > 0.2) continue;
+           if( fabs(isoTrk.dxy()) > 0.2 ) continue;
            if( trkiso/isoTrk.pt() > isoCut_ ) continue;
            if( std::abs(isoTrk.dz()) > dzcut_ ) continue;
-           
-	   edm::Ptr<reco::Candidate> c = loose_isoTrksHandlePtr_->ptrAt(is);
-	   selCandPf->push_back(c);
-           double mtw = sqrt( 2*( (*met)[0].pt()*isoTrk.pt() -( (*met)[0].px()*isoTrk.px() + (*met)[0].py()*isoTrk.py() ) ) );
-           
-           loose_isoTrks_pt.push_back(isoTrk.pt());
-           loose_isoTrks_eta.push_back(isoTrk.eta());
-           loose_isoTrks_phi.push_back(isoTrk.phi());
-           loose_isoTrks_mass.push_back(isoTrk.energy());
-           loose_isoTrks_charge.push_back(isoTrk.charge());
-           loose_isoTrks_dz.push_back(isoTrk.dz());
-           loose_isoTrks_pdgId.push_back(isoTrk.pdgId());
+
+	   edm::Ptr<reco::Candidate> c = pfcandsPtr_->ptrAt(is);
+	   selCandPf->push_back(c);           
            loose_isoTrks_iso.push_back(trkiso);
-           loose_isoTrks_mtw.push_back(mtw);
            
            if( debug_ ){
-              std::cout<<"  --> is : "<<is<<"  pt/eta/phi/chg : "<<isoTrk.pt()<<"/"<<isoTrk.eta()<<"/"<<isoTrk.phi()<<"/"<<isoTrk.charge()<<"  mtw : "<<mtw<<"  pdgId : "<<(*loose_isoTrksHandle_)[is].pdgId()<<"  dz : " << isoTrk.dz()<<"  iso/pt : "<<trkiso/isoTrk.pt()<<std::endl;
+              std::cout<<"  --> is : "<<is<<"  pt/eta/phi/chg : "<<isoTrk.pt()<<"/"<<isoTrk.eta()<<"/"<<isoTrk.phi()<<"/"<<isoTrk.charge()<<"  pdgId : "<<(*loose_isoTrksHandle_)[is].pdgId()<<"  dz : " << isoTrk.dz()<<"  iso/pt : "<<trkiso/isoTrk.pt()<<std::endl;
            }  
          }else{
                //neutral particle, set trkiso and dzpv to 9999
@@ -222,23 +197,15 @@ void prodIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       
       auto out = std::make_unique<nanoaod::FlatTable>(selCandPf->size(), isoTrackName_, false); 
       out->setDoc("save Iso Track variables");
-      
-
-      //out->addColumn<double>("q", 		loose_isoTrks_charge, "charge of track" , nanoaod::FlatTable::FloatColumn,10);
-      //out->addColumn<double>("dz", 		loose_isoTrks_dz,     "dz of track" , nanoaod::FlatTable::FloatColumn,10);
-      //out->addColumn<int>(   "pdgid", 	        loose_isoTrks_pdgId,  "pdgid of track" , nanoaod::FlatTable::IntColumn);
-      out->addColumn<double>("iso", 		loose_isoTrks_iso,    "iso of track" , nanoaod::FlatTable::FloatColumn,10);
-      out->addColumn<double>("mtw", 		loose_isoTrks_mtw,    "mtw of track" , nanoaod::FlatTable::FloatColumn,10);
-  
-      auto single = std::make_unique<nanoaod::FlatTable>(1, isoTrackName_ + "_single", false);
-      single->setDoc("save single values for iso track variables");
-
-      single->addColumn<int>("nIsoTrks", loose_nIsoTrks,      "total number of iso tracks", nanoaod::FlatTable::IntColumn, 1);
-      single->addColumn<int>("nIsoTrackVeto", nIsoTrksForVeto,"total number of iso tracks for veto", nanoaod::FlatTable::IntColumn, 1);
-
+      out->addColumn<float>("iso", 		loose_isoTrks_iso,    "iso of track" , nanoaod::FlatTable::FloatColumn,10);
       iEvent.put(std::move(out),isoTrackName_);
-      iEvent.put(std::move(single),isoTrackName_ + "_single");
       iEvent.put(std::move(selCandPf));
+  
+//      auto single = std::make_unique<nanoaod::FlatTable>(1, isoTrackName_ + "_single", false);
+//      single->setDoc("save single values for iso track variables");
+//      single->addColumnValue<int>("nIsoTrks",      loose_nIsoTrks, "total number of iso tracks",          nanoaod::FlatTable::IntColumn);
+//      single->addColumnValue<int>("nIsoTrackVeto", nIsoTrksForVeto,"total number of iso tracks for veto", nanoaod::FlatTable::IntColumn);
+//      iEvent.put(std::move(single), isoTrackName_ + "_single");
 
     }
 }
