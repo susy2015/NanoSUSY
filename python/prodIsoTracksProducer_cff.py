@@ -4,7 +4,6 @@ from PhysicsTools.NanoAOD.common_cff import *
 def setupprodIsoTracksVariables(process, runOnMC=False, path=None):
     process.IsoTracksTable = cms.EDProducer("prodIsoTracksProducer",
                                       vtxSrc            = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                      #metSrc            = cms.InputTag('slimmedMETs'),
                                       forVetoIsoTrkSrc  = cms.InputTag("trackIsolation"),
                                       loose_isoTrkSrc   = cms.InputTag("packedPFCandidates"),
                                       exclPdgIdVec      = cms.vint32(),
@@ -12,20 +11,21 @@ def setupprodIsoTracksVariables(process, runOnMC=False, path=None):
                                       dz_CutValue       = cms.double(0.1),
                                       minPt_PFCandidate = cms.double(5.0),
                                       isoCut            = cms.double(0.5),
-                                      debug             = cms.bool(True),
+                                      debug             = cms.bool(False),
 				      isoTrackName      = cms.string("isoTrk"),
-                                      )
+                                      isoTrackSingleName= cms.string("isoTrkSingle"),
+				      )
 
     process.prodIsoTracksTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         src = cms.InputTag("IsoTracksTable"),
         cut = cms.string(""),
-        name = cms.string("IsoTrk"),
+        name = cms.string("isoTrk"),
         singleton = cms.bool(False), # the number of entries is variable
         extension = cms.bool(True),
         variables = cms.PSet( P4Vars,
-            #q     = Var("charge()", float, doc = "isoTrack info charge", precision=8),
+            q     = Var("charge()", float, doc = "isoTrack info charge", precision=8),
             dz    = Var("dz()", float, doc = "isoTrack info dz", precision=8),
-            #pdgId = Var("pdgId()", int, doc = "isoTrack info pdgId"),
+            pdgId = Var("pdgId()", int, doc = "isoTrack info pdgId"),
         ),
     )
 

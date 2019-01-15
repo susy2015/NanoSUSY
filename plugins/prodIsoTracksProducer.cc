@@ -92,6 +92,7 @@ private:
     double minPt_, isoCut_;
     bool debug_;
     const std::string isoTrackName_;
+    const std::string isoTrackSingleName_;
 };
 
 prodIsoTracksProducer::prodIsoTracksProducer(const edm::ParameterSet& params):
@@ -105,10 +106,12 @@ prodIsoTracksProducer::prodIsoTracksProducer(const edm::ParameterSet& params):
     minPt_                              (params.getParameter<double>             ("minPt_PFCandidate")),
     isoCut_                             (params.getParameter<double>             ("isoCut")),
     debug_                              (params.getParameter<bool>               ("debug")),
-    isoTrackName_			(params.getParameter<std::string>        ("isoTrackName"))
+    isoTrackName_			(params.getParameter<std::string>        ("isoTrackName")),
+    isoTrackSingleName_			(params.getParameter<std::string>        ("isoTrackSingleName"))
 
 {
     produces<nanoaod::FlatTable>(isoTrackName_);
+    produces<nanoaod::FlatTable>(isoTrackSingleName_);
     produces<edm::PtrVector<reco::Candidate>>();
 }
 
@@ -195,17 +198,18 @@ void prodIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       }  
       if( debug_ ) std::cout<<std::endl;
       
+      auto single = std::make_unique<nanoaod::FlatTable>(1, isoTrackSingleName_, true);
+      single->setDoc("save single values for iso track variables");
+      single->addColumnValue<int>("nIsoTrks",      loose_nIsoTrks, "total number of iso tracks",          nanoaod::FlatTable::IntColumn);
+      single->addColumnValue<int>("nIsoTrackVeto", nIsoTrksForVeto,"total number of iso tracks for veto", nanoaod::FlatTable::IntColumn);
+
       auto out = std::make_unique<nanoaod::FlatTable>(selCandPf->size(), isoTrackName_, false); 
       out->setDoc("save Iso Track variables");
       out->addColumn<float>("iso", 		loose_isoTrks_iso,    "iso of track" , nanoaod::FlatTable::FloatColumn,10);
+      
+      iEvent.put(std::move(single), isoTrackSingleName_);
       iEvent.put(std::move(out),isoTrackName_);
       iEvent.put(std::move(selCandPf));
-  
-//      auto single = std::make_unique<nanoaod::FlatTable>(1, isoTrackName_ + "_single", false);
-//      single->setDoc("save single values for iso track variables");
-//      single->addColumnValue<int>("nIsoTrks",      loose_nIsoTrks, "total number of iso tracks",          nanoaod::FlatTable::IntColumn);
-//      single->addColumnValue<int>("nIsoTrackVeto", nIsoTrksForVeto,"total number of iso tracks for veto", nanoaod::FlatTable::IntColumn);
-//      iEvent.put(std::move(single), isoTrackName_ + "_single");
 
     }
 }
