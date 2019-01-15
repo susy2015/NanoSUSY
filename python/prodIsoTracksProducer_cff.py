@@ -12,14 +12,14 @@ def setupprodIsoTracksVariables(process, runOnMC=False, path=None):
                                       minPt_PFCandidate = cms.double(5.0),
                                       isoCut            = cms.double(0.5),
                                       debug             = cms.bool(False),
-				      isoTrackName      = cms.string("isoTrk"),
-                                      isoTrackSingleName= cms.string("isoTrkSingle"),
+				      isoTrackName      = cms.string("IsoTrack"),
+                                      nisoTrackName     = cms.string("nIsoTrack"),
 				      )
 
     process.prodIsoTracksTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         src = cms.InputTag("IsoTracksTable"),
         cut = cms.string(""),
-        name = cms.string("isoTrk"),
+        name = cms.string("IsoTrack"),
         singleton = cms.bool(False), # the number of entries is variable
         extension = cms.bool(True),
         variables = cms.PSet( P4Vars,
