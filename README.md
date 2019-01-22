@@ -40,13 +40,13 @@ $CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -n -t DeepResolve
 
 For 2016 80X MC, '/\*/RunIISummer16MiniAODv2\*/MINIAODSIM'
 ``` 
-cmsDriver.py prod2016MCv2 -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/mc/RunIISummer16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/621E65CB-98BE-E611-BC32-00259029E7FC.root --no_exec --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v6 -n 100 --era Run2_2016,run2_miniAOD_80XLegacy --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTaggerAllCanidiatesAndVariables --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customizeCommon
+cmsDriver.py prod2016MCv2 -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/mc/RunIISummer16MiniAODv2/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/621E65CB-98BE-E611-BC32-00259029E7FC.root --no_exec --conditions 102X_mcRun2_asymptotic_v6 -n 100 --era Run2_2016,run2_miniAOD_80XLegacy --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTaggerAllCanidiatesAndVariables --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customize80XLegacy
 cmsRun prod2016MCv2_NANO.py
 ```
 
 For 2016 80X Fastsim, '/\*/RunIISpring16MiniAODv\*/MINIAODSIM'
 ``` 
-cmsDriver.py prod2016Fastv2 -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/mc/RunIISpring16MiniAODv2/SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/1C8E082A-9140-E611-8C60-008CFA1974D8.root --no_exec --conditions 80X_mcRun2_asymptotic_2016_miniAODv2_v0 -n 100 --era Run2_2016,run2_miniAOD_80XLegacy --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTaggerAllCanidiatesAndVariables --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customizeCommon --fast
+cmsDriver.py prod2016Fastv2 -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/mc/RunIISpring16MiniAODv2/SMS-T2tt_mStop-150to250_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/10000/1C8E082A-9140-E611-8C60-008CFA1974D8.root --no_exec --conditions 102X_mcRun2_asymptotic_v6 -n 100 --era Run2_2016,run2_miniAOD_80XLegacy --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTaggerAllCanidiatesAndVariables --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customize80XLegacy --fast
 cmsRun prod2016Fastv2_NANO.py
 ```
 

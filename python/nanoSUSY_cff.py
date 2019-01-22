@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.NanoSUSY.ak8_cff import setupCustomizedAK8
 from PhysicsTools.NanoSUSY.softb_cff import setupCustomizedSB
 from PhysicsTools.NanoSUSY.TauMVAProducer_cff import setupTauMVAVariables
 from PhysicsTools.NanoSUSY.prodIsoTracksProducer_cff import setupprodIsoTracksVariables
@@ -7,7 +6,6 @@ from PhysicsTools.NanoSUSY.prodIsoTracksProducer_cff import setupprodIsoTracksVa
 def nanoSUSY_customizeCommon(process):
     setupCustomizedSB(process)
     setupTauMVAVariables(process)
-    setupprodIsoTracksVariables(process)
     process.particleLevelSequence.remove(process.genParticles2HepMCHiggsVtx);
     process.particleLevelSequence.remove(process.rivetProducerHTXS);
     process.particleLevelTables.remove(process.HTXSCategoryTable)
@@ -15,10 +13,13 @@ def nanoSUSY_customizeCommon(process):
     ## Needed to avoid segfault erros in the output moule when producing flat ntuple
     ## From https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/3287/1/1/1/1/1.html
     process.add_(cms.Service("InitRootHandlers", EnableIMT = cms.untracked.bool(False)))
-    ## In case we want crab to publish the output file
-    process.NANOAODoutput.fakeNameForCrab=cms.untracked.bool(True)
     return process
 
+def nanoSUSY_customize80XLegacy(process):
+    process = nanoSUSY_customizeCommon(process)
+    ## Adding prodIsoTrack for 80Xlegacy
+    setupprodIsoTracksVariables(process)
+    return process
 
 def nanoSUSY_customizeData(process):
     process = nanoSUSY_customizeCommon(process, False)
