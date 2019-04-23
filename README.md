@@ -36,6 +36,22 @@ mkdir -p ${CMSSW_BASE}/src/TopTagger/TopTagger/data
 $CMSSW_BASE/src/TopTagger/TopTagger/scripts/getTaggerCfg.sh -o -n -t DeepResolved_DeepCSV_GR_noDisc_Release_v1.0.0 -d $CMSSW_BASE/src/TopTagger/TopTagger/data
 ```
 
+##### Lumi used and location
+This is where all lumi's live: https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/
+*Summer2016 94X:https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt
+*Fall17 :https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt
+*Autumn18:https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt
+
+##### Global Tags
+These live here: https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
+
+*Summer2016 94X:94X_mcRun2_asymptotic_v3
+*Fall17:102X_upgrade2018_realistic_v16
+*Autumn18:102X_upgrade2018_realistic_v16
+
+Remember if using auto tag that it has to exist in the CMSSW here: https://github.com/cms-sw/cmssw/blob/CMSSW_10_2_X/Configuration/AlCa/python/autoCond.py
+If it does not exist in the CMSSW version because it came later than auto tag will not work.
+
 ##### 2016 Sample
 
 For 2016 80X MC, '/\*/RunIISummer16MiniAODv2\*/MINIAODSIM'
