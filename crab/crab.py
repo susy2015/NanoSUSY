@@ -71,10 +71,13 @@ def createConfig(args, dataset, outname):
     config.JobType.numCores = args.num_cores
     config.JobType.maxMemoryMB = args.max_memory
 
+    config.JobType.allowUndistributedCMSSW=True
+
     config.Data.inputDBS = 'global'
     config.Data.inputDataset = dataset
     config.Data.splitting = args.splitting
     config.Data.unitsPerJob = args.units_per_job
+    config.Data.allowNonValidInputDataset = True
     if args.no_publication:
         config.Data.publication = False
     config.Data.outputDatasetTag = args.tag + '_' + vername
@@ -192,6 +195,7 @@ def status(args):
 
 def SubmitJob(args, dataset, outname):
     cfg = createConfig(args, dataset, outname)
+    #print (cfg)
     if args.dryrun:
         print('-' * 50)
         print(cfg)
@@ -217,12 +221,15 @@ def main():
     parser.add_argument('-p', '--pset',
                         help='Path to the CMSSW configuration file'
                         )
+    parser.add_argument('-c', '--config',
+                       help='Crab ISSUe'
+                       )
     parser.add_argument('-s', '--splitting',
-                        default='Automatic', choices=['Automatic', 'FileBased', 'LumiBased', 'EventAwareLumiBased'],
+                        default='FileBased', choices=['Automatic', 'FileBased', 'LumiBased', 'EventAwareLumiBased'],
                         help='Job splitting method. Default: %(default)s'
                         )
     parser.add_argument('-n', '--units-per-job',
-                        default=300, type=int,
+                        default=1, type=int,
                         help='Units per job. The meaning depends on the splitting. Recommended default numbers: (Automatic: 300 min, LumiBased:100, EventAwareLumiBased:100000) Default: %(default)d'
                         )
     parser.add_argument('-t', '--tag',

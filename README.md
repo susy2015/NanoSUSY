@@ -14,7 +14,7 @@ SUSY, mainly focus on the stop all-hadroinc searches.
 source /cvmfs/cms.cern.ch/cmsset_default.csh
 setenv SCRAM_ARCH slc6_amd64_gcc700
 cmsrel CMSSW_10_2_9
-cd CMSSW_10_2_9/src/
+cd CMSSW_10_2_22/src/
 cmsenv
 ```
 
@@ -79,6 +79,11 @@ For 2017 MC, '/\*/RunIIFall17\*12Apr2018\*/MINIAODSIM'
 ``` 
 cmsDriver.py prod2017MC -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv1 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTaggerAllCanidiatesAndVariables --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customizeCommon
 cmsRun prod2017MC_NANO.py
+```
+
+##### Extra
+```
+cmsDriver.py prod2017MCTry -s NANO --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --filein /store/user/benwu/Stop18/NtupleSyncMiniAOD/00257B91-1808-E811-BD39-0242AC130002.root --no_exec --conditions auto:phase1_2017_realistic -n 100 --era Run2_2017,run2_nanoAOD_94XMiniAODv1 --customise TopTagger/TopTagger/resolvedTagger_cff.customizeResolvedTaggerAllCanidiatesAndVariables --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.nanoSUSY_customizeCommon --customise PhysicsTools/NanoSUSY/nanoSUSY_cff.setupCustomizedGenWeight --fast
 ```
 
 ### Submit crab jobs

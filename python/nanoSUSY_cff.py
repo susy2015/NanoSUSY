@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoSUSY.softb_cff import setupCustomizedSB
 from PhysicsTools.NanoSUSY.TauMVAProducer_cff import setupTauMVAVariables
 from PhysicsTools.NanoSUSY.prodIsoTracksProducer_cff import setupprodIsoTracksVariables
+from PhysicsTools.NanoSUSY.gensumweight_cff import setupCustomizedGenWeight
 
 def nanoSUSY_customizeCommon(process):
     setupCustomizedSB(process)
@@ -19,6 +20,11 @@ def nanoSUSY_customize80XLegacy(process):
     process = nanoSUSY_customizeCommon(process)
     ## Adding prodIsoTrack for 80Xlegacy
     setupprodIsoTracksVariables(process)
+    return process
+
+def SignalGenWeight(process):
+    setupCustomizedGenWeight(process)
+    process.NANOAODSIMoutput.fakeNameForCrab = cms.untracked.bool(True)
     return process
 
 def nanoSUSY_customizeData(process):
